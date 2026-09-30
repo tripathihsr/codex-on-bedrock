@@ -1,0 +1,60 @@
+# =====================================================================
+#  codex.properties  -  Codex + Amazon Bedrock (India) setup
+#  Edit the values below, then run the scripts. Any value left blank is
+#  asked for at the prompt (or a sensible default is used).
+#  Precedence: CLI flag > this file > prompt > built-in default.
+#  Format: KEY = VALUE   (# starts a comment; quotes optional)
+#  To use a custom location: set CODEX_PROPERTIES=/abs/path/codex.properties
+# =====================================================================
+
+# ---------- Platform ----------
+# os: auto | mac | windows   (auto = detect this machine)
+os = auto
+
+# ---------- Codex install (step 2) ----------
+# codex_version: latest | a pinned version string (e.g. 0.154.0)
+#   mac (brew):    latest recommended; pinning a cask version is best-effort.
+#   windows:       latest recommended.
+codex_version = latest
+# install_gui: true | false  (desktop GUI in addition to the CLI)
+install_gui = true
+
+# ---------- Model / endpoint (writes ~/.codex/config.toml) ----------
+# model: the INFERENCE PROFILE id (India geo). Terra or Luna:
+#   in.openai.gpt-5.6-terra   |   in.openai.gpt-5.6-luna
+model = in.openai.gpt-5.6-terra
+# model_provider: MUST be amazon-bedrock-runtime for the India geo profile.
+#   (amazon-bedrock -> old mantle endpoint -> 404. Do not use.)
+model_provider = amazon-bedrock-runtime
+# region: ap-south-1 (Mumbai) or ap-south-2 (Hyderabad)
+region = ap-south-1
+# wire_api: responses  (OpenAI Responses API surface)
+wire_api = responses
+# reasoning_effort: none | low | medium | high | xhigh | max
+reasoning_effort = high
+# base_url: OPTIONAL explicit endpoint override. Leave blank to let Codex
+#   derive it from the provider + region (recommended). Example if needed:
+#   https://bedrock-runtime.ap-south-1.amazonaws.com/openai/v1
+base_url =
+
+# ---------- Auth ----------
+# auth_type: bearer | iamkey
+#   bearer = Amazon Bedrock API key (recommended for end users)
+#   iamkey = IAM access key (SigV4 via AWS SDK credential chain)
+auth_type = bearer
+# username: short name for the Codex end user (step 1 creates
+#   IAM user codex-bedrock-user-<username>)
+username =
+# token_file: path to the *_BEARER.txt produced by step 1 (PREFERRED).
+#   Used by step 3 to apply the token.
+token_file =
+# bearer_token: OPTIONAL inline token. Leave blank and use token_file instead.
+#   WARNING: if you put a token here, DO NOT commit this file anywhere.
+bearer_token =
+
+# ---------- AWS (admin steps 0-1) ----------
+# admin_profile: AWS CLI profile with admin perms (blank = default chain)
+admin_profile = codex-bedrock-admin
+# account_id: OPTIONAL; auto-detected from admin identity if blank
+account_id =
+

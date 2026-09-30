@@ -1,0 +1,21 @@
+# Secrets / credentials — NEVER commit these
+# Bearer tokens and IAM key files produced by 1_create_codex_user_and_token.py
+*_BEARER.txt
+*_IAMKEY.txt
+# Local, engineer-edited config (may contain a username or an inline token).
+# Commit codex.properties.template instead.
+codex.properties
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Editor / OS
+.DS_Store
+*.old-bak
+
+# AWS
+.aws/
