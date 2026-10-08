@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Codex on Amazon Bedrock (India) — Installation &amp; Architecture Guide</title>
+<style>
+  :root{
+    --bg:#f6f8fc; --bg2:#eef2f9; --panel:#ffffff; --panel2:#f3f6fb;
+    --line:#e2e8f2; --line2:#d7deeb;
+    --text:#1f2a44; --muted:#5a6b88; --heading:#132038;
+    --accent:#2563eb; --accent2:#0ea5a0; --accent-soft:#e8f0ff;
+    --warn:#b7791f; --warn-bg:#fff7e6; --warn-line:#f0d79a;
+    --ok:#0f8a6b; --ok-bg:#e9f8f2; --ok-line:#bfe8d8;
+    --info-bg:#eef4ff; --info-line:#cfe0ff;
+    --code-bg:#0f1b33; --code-text:#dbe7ff;
+    --maxw:900px;
+    --shadow:0 1px 2px rgba(20,40,80,.04), 0 6px 20px rgba(20,40,80,.06);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.68;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{display:flex;max-width:1240px;margin:0 auto;gap:36px;padding:0 24px}
+
+  nav{position:sticky;top:0;align-self:flex-start;height:100vh;overflow-y:auto;width:244px;flex:0 0 244px;padding:30px 0;}
+  nav .brand{font-weight:800;font-size:15px;letter-spacing:.2px;padding:0 12px 6px;display:flex;align-items:center;gap:9px;color:var(--heading)}
+  nav .brand .dot{width:11px;height:11px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 0 4px var(--accent-soft)}
+  nav .brand-sub{font-size:11.5px;color:var(--muted);padding:0 12px 16px;font-weight:500}
+  nav ol{list-style:none;margin:0;padding:0}
+  nav li a{display:block;padding:9px 14px;color:var(--muted);font-size:13.5px;border-radius:8px;margin:2px 6px;transition:all .15s}
+  nav li a:hover{color:var(--heading);text-decoration:none;background:var(--bg2)}
+  nav li a.active{color:var(--accent);background:var(--accent-soft);font-weight:600}
+
+  main{flex:1;min-width:0;padding:42px 0 100px;max-width:var(--maxw)}
+
+  header.hero{background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 55%,#0ea5a0 130%);
+    border-radius:18px;padding:34px 34px 30px;color:#fff;box-shadow:var(--shadow);margin-bottom:16px}
+  header.hero h1{font-size:29px;margin:0 0 10px;letter-spacing:-.4px;line-height:1.2}
+  header.hero p.lead{color:rgba(255,255,255,.92);font-size:16px;margin:0;max-width:70ch}
+  .pill{display:inline-block;font-size:11px;color:#fff;border:1px solid rgba(255,255,255,.5);
+    background:rgba(255,255,255,.14);border-radius:999px;padding:4px 12px;margin-bottom:16px;letter-spacing:.6px;font-weight:600}
+  .disclaimer{font-size:12px;color:var(--muted);background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:11px 15px;margin:14px 0 30px}
+
+  section{margin:0 0 50px;scroll-margin-top:22px}
+  section h2{font-size:22px;margin:0 0 16px;color:var(--heading);display:flex;align-items:center;gap:12px;letter-spacing:-.2px}
+  section h2 .num{flex:0 0 auto;width:34px;height:34px;border-radius:10px;background:var(--accent-soft);color:var(--accent);
+    font-size:13.5px;font-weight:800;display:flex;align-items:center;justify-content:center}
+  section h3{font-size:16.5px;margin:28px 0 8px;color:var(--heading);font-weight:650}
+  p{margin:12px 0}
+  ul,ol{margin:12px 0;padding-left:24px}
+  li{margin:8px 0}
+  strong{color:var(--heading);font-weight:650}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:18px 0;box-shadow:var(--shadow)}
+  .card.accent{border-left:4px solid var(--accent);background:var(--info-bg);border-color:var(--info-line)}
+  .card.ok{border-left:4px solid var(--ok);background:var(--ok-bg);border-color:var(--ok-line)}
+  .card.warn{border-left:4px solid var(--warn);background:var(--warn-bg);border-color:var(--warn-line)}
+  .card h4{margin:0 0 8px;font-size:14.5px;color:var(--heading)}
+  .card.ok h4{color:var(--ok)} .card.warn h4{color:var(--warn)} .card.accent h4{color:var(--accent)}
+  .muted{color:var(--muted)}
+
+  code{background:var(--bg2);border:1px solid var(--line2);border-radius:5px;padding:1.5px 6px;font-size:12.8px;
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;color:#1b3a6b}
+  pre{background:var(--code-bg);border-radius:12px;padding:16px 18px;overflow-x:auto;margin:14px 0;box-shadow:var(--shadow)}
+  pre code{background:none;border:0;padding:0;color:var(--code-text);font-size:12.8px;line-height:1.6}
+
+  table{border-collapse:separate;border-spacing:0;width:100%;margin:18px 0;font-size:13.5px;
+    border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+  th,td{border-bottom:1px solid var(--line);padding:11px 14px;text-align:left;vertical-align:top}
+  tr:last-child td{border-bottom:0}
+  th{background:var(--panel2);color:var(--heading);font-weight:650}
+  table tr:nth-child(even) td{background:#fafcff}
+  td code{white-space:nowrap}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:18px 0}
+  .tile{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
+  .tile .ic{width:38px;height:38px;border-radius:10px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;margin-bottom:10px;font-size:19px}
+  .tile h4{margin:0 0 5px;font-size:14.5px;color:var(--heading)}
+  .tile p{margin:0;font-size:13px;color:var(--muted)}
+
+  .diagram{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;margin:20px 0;box-shadow:var(--shadow)}
+  .diagram svg{display:block;width:100%;height:auto}
+  .diagram .cap{font-size:12px;color:var(--muted);text-align:center;margin-top:6px}
+
+  .steps{counter-reset:step;list-style:none;padding-left:0;margin:18px 0}
+  .steps > li{counter-increment:step;position:relative;padding:18px 0 18px 56px;border-top:1px solid var(--line)}
+  .steps > li:first-child{border-top:0}
+  .steps > li::before{content:counter(step);position:absolute;left:0;top:18px;width:36px;height:36px;border-radius:11px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-weight:800;font-size:15px;
+    display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow)}
+  .steps > li h3{margin:3px 0 6px;color:var(--heading)}
+  .steps.zero{counter-reset:step -1}
+
+  .key{color:var(--accent2);font-weight:650}
+  .danger{color:#c0392b;font-weight:650}
+  footer{border-top:1px solid var(--line);margin-top:34px;padding-top:20px;color:var(--muted);font-size:12.5px}
+
+  @media (max-width:900px){
+    nav{display:none}
+    .wrap{padding:0 16px}
+    main{padding-top:24px}
+    header.hero{padding:26px 22px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav>
+    <div class="brand"><span class="dot"></span> Codex on Bedrock</div>
+    <div class="brand-sub">Installation &amp; Architecture Guide</div>
+    <ol>
+      <li><a href="#why">Overview &amp; Context</a></li>
+      <li><a href="#problem">1. Challenges Addressed</a></li>
+      <li><a href="#solution">2. How It Works</a></li>
+      <li><a href="#architecture">3. Architecture Diagram</a></li>
+      <li><a href="#approach">4. Design Approach</a></li>
+      <li><a href="#auth">5. Authentication &amp; Access Controls</a></li>
+      <li><a href="#install">6. Installation Steps</a></li>
+      <li><a href="#summary">7. Summary</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <span class="pill">PROVISIONING BUNDLE · CODEX + AMAZON BEDROCK (INDIA)</span>
+      <h1>Codex on Amazon Bedrock (India) — Installation &amp; Architecture Guide</h1>
+      <p class="lead">A small set of cross-platform scripts that connect OpenAI Codex to Amazon Bedrock in the
+      India region, using a per-user Amazon Bedrock API key (bearer token) so model traffic is served in-country.</p>
+    </header>
+    <p class="disclaimer">This document is technical reference material for setting up and operating the software.
+      It describes design intent and configuration options; it is not a security certification, compliance
+      attestation, or legal advice. Validate the setup against your own security, privacy, and regulatory
+      requirements before production use.</p>
+
+    <!-- OVERVIEW -->
+    <section id="why">
+      <h2><span class="num">00</span> Overview &amp; Context</h2>
+      <p>Development teams increasingly want a capable AI coding assistant such as <strong>Codex</strong>. One common
+      path is a public-internet SaaS endpoint — which, for a regulated or public-sector organization, can mean source
+      code, prompts, and proprietary context travel to an external vendor and potentially across regions. Where
+      <strong>data residency</strong> is a requirement, that may be unacceptable.</p>
+      <p>This bundle configures <strong>Codex to run against Amazon Bedrock</strong> in the India region. OpenAI-
+      compatible models (for example <code>in.openai.gpt-5.6-terra</code>) are served from Bedrock in
+      <code>ap-south-1</code> (Mumbai), with <code>ap-south-2</code> (Hyderabad) as the in-country cross-Region
+      destination — so teams can use the assistant without routing data to an external SaaS.</p>
+
+      <h3>How this is designed to support data residency</h3>
+      <ul>
+        <li><strong>In-country inference.</strong> Model calls go to the Bedrock endpoint in an India region, and the
+        India geographic inference profile keeps routing within <code>ap-south-1</code> / <code>ap-south-2</code>.</li>
+        <li><strong>Your account, your controls.</strong> Everything runs in <em>your</em> AWS account under your IAM,
+        logging (CloudTrail), and Bedrock invocation logs in the India regions.</li>
+        <li><strong>Per-user identity.</strong> Each developer gets a dedicated low-privilege IAM user and their own
+        credential, rather than a shared account-wide secret.</li>
+        <li><strong>No external AI SaaS.</strong> Codex is pointed at the Bedrock runtime endpoint, not at a public
+        model provider.</li>
+      </ul>
+      <div class="card ok">
+        <h4>In short</h4>
+        <p class="muted">Teams get a Bedrock-backed Codex experience configured to keep model traffic within the
+        India region and your AWS account. Residency outcomes depend on your configuration and the AWS services'
+        own regional behaviour — validate against your requirements.</p>
+      </div>
+
+      <div class="card warn">
+        <h4>Important — this direct setup is for validation / proof-of-concept</h4>
+        <p class="muted">In this configuration, Codex connects <strong>directly</strong> to Amazon Bedrock using a
+        per-user bearer token. The provisioning script creates a real <strong>IAM user</strong> and a long-lived
+        <strong>Amazon Bedrock API key</strong> for each developer. That is a quick way to <em>validate</em>
+        in-country Codex works end to end — but a long-lived credential on each developer's machine is a wider blast
+        radius than you want for ongoing use.</p>
+        <p class="muted"><strong>Preferred production path:</strong> front Bedrock with the
+        <strong>Bedrock Meter</strong> governance gateway and onboard developers there. In that model, developers
+        never hold an AWS/Bedrock credential — they get a revocable, budget-capped gateway key, and the only AWS
+        credential is a short-lived, auto-rotated ECS task role held by the gateway (not by any person). That is a
+        much smaller blast radius, plus per-user budgets, usage metering, console onboarding, and instant
+        revocation.</p>
+        <p class="muted"><strong>Recommendation:</strong> use this bundle to validate the Bedrock path, then set up
+        Bedrock Meter and complete user onboarding through its admin console. See the Bedrock Meter repository and
+        follow its installation guide:
+        <a href="https://github.com/tripathihsr/bedrock-meter" target="_blank" rel="noopener">github.com/tripathihsr/bedrock-meter</a>.</p>
+      </div>
+    </section>
+
+    <!-- 1. CHALLENGES -->
+    <section id="problem">
+      <h2><span class="num">01</span> Challenges Addressed</h2>
+      <p>Getting Codex working against Bedrock in-country, for more than one developer, involves several practical
+      challenges this bundle is designed to simplify:</p>
+      <div class="grid">
+        <div class="tile"><div class="ic">🌐</div><h4>Data residency</h4><p>Model traffic needs to stay within the
+          India regions rather than reach an external SaaS or another geography.</p></div>
+        <div class="tile"><div class="ic">🧩</div><h4>Correct endpoint &amp; model wiring</h4><p>Small configuration
+          details (provider name, inference-profile id, API surface) determine whether calls succeed or fail with a
+          404 — easy to get wrong by hand.</p></div>
+        <div class="tile"><div class="ic">🔑</div><h4>Per-user credentials</h4><p>Each developer should have their own
+          low-privilege identity and credential, not a shared account-wide secret.</p></div>
+        <div class="tile"><div class="ic">💻</div><h4>Cross-platform setup</h4><p>Developers run macOS or Windows;
+          installing Codex and writing the right config on each machine is repetitive and error-prone.</p></div>
+        <div class="tile"><div class="ic">📋</div><h4>Repeatable onboarding</h4><p>Adding each new user — IAM user,
+          least-privilege policy, credential, hand-off — should be a consistent, scripted sequence.</p></div>
+        <div class="tile"><div class="ic">🔒</div><h4>Safe secret handling</h4><p>Issued tokens and key files must be
+          stored with restrictive permissions and kept out of version control.</p></div>
+      </div>
+      <div class="card accent">
+        <h4>The question this addresses</h4>
+        <p class="muted">How can an organization set up Codex against Amazon Bedrock in India — correctly and
+        repeatably, per user, on both macOS and Windows — without hand-wiring fragile configuration or mishandling
+        secrets?</p>
+      </div>
+    </section>
+
+    <!-- 2. HOW IT WORKS -->
+    <section id="solution">
+      <h2><span class="num">02</span> How It Works</h2>
+      <p>The bundle is a set of cross-platform Python scripts, driven by a single editable settings file
+      (<code>codex.properties</code>). An <strong>admin</strong> provisions each user in AWS; the <strong>end
+      user</strong> installs Codex and applies their token. The scripts auto-resolve paths and read the settings file,
+      so most values do not need to be remembered or retyped.</p>
+      <div class="grid">
+        <div class="tile"><div class="ic">⚙️</div><h4>One settings file</h4><p><code>codex.properties</code> holds
+          model, region, provider, auth type, and username; every script reads it.</p></div>
+        <div class="tile"><div class="ic">🪪</div><h4>Per-user provisioning</h4><p>Creates a low-privilege IAM user
+          and issues that user's Amazon Bedrock API key (bearer token).</p></div>
+        <div class="tile"><div class="ic">🖥️</div><h4>Client install &amp; config</h4><p>Installs the Codex CLI (and
+          desktop app) and writes the exact <code>~/.codex/config.toml</code> that works with Bedrock.</p></div>
+        <div class="tile"><div class="ic">✅</div><h4>Built-in verification</h4><p>A final check confirms the full
+          path works end to end before you rely on it.</p></div>
+      </div>
+      <p>Precedence for every setting is predictable: <strong>CLI flag &gt; <code>codex.properties</code> &gt;
+      interactive prompt &gt; built-in default</strong>, so you can automate or run interactively as you prefer.</p>
+    </section>
+
+    <!-- 3. ARCHITECTURE DIAGRAM -->
+    <section id="architecture">
+      <h2><span class="num">03</span> Architecture Diagram</h2>
+      <p>The provisioning flow and the runtime request path:</p>
+      <div class="diagram">
+        <svg viewBox="0 0 900 500" role="img" aria-label="Codex on Bedrock architecture diagram" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#2563eb"/><stop offset="1" stop-color="#0ea5a0"/>
+            </linearGradient>
+            <marker id="arrow" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L7,3 L0,6 Z" fill="#5a6b88"/>
+            </marker>
+            <style>
+              .box{fill:#ffffff;stroke:#d7deeb;stroke-width:1.5}
+              .lbl{font:600 13px -apple-system,Segoe UI,Roboto,sans-serif;fill:#132038}
+              .sub{font:11px -apple-system,Segoe UI,Roboto,sans-serif;fill:#5a6b88}
+              .edge{stroke:#5a6b88;stroke-width:1.6;fill:none}
+              .edgetxt{font:10.5px -apple-system,Segoe UI,Roboto,sans-serif;fill:#5a6b88}
+              .zone{fill:#eef4ff;stroke:#cfe0ff;stroke-width:1.2;stroke-dasharray:5 4}
+              .zonetxt{font:700 11px -apple-system,Segoe UI,Roboto,sans-serif;fill:#2563eb;letter-spacing:.4px}
+              .pzone{fill:#e9f8f2;stroke:#bfe8d8;stroke-width:1.2;stroke-dasharray:5 4}
+              .pzonetxt{font:700 11px -apple-system,Segoe UI,Roboto,sans-serif;fill:#0f8a6b;letter-spacing:.4px}
+            </style>
+          </defs>
+
+          <!-- Provisioning (admin) zone -->
+          <rect class="pzone" x="20" y="20" width="400" height="150" rx="14"/>
+          <text class="pzonetxt" x="38" y="42">PROVISIONING · ADMIN (steps 0–1)</text>
+          <rect class="box" x="40" y="60" width="150" height="86" rx="12"/>
+          <text class="lbl" x="115" y="90" text-anchor="middle">Admin scripts</text>
+          <text class="sub" x="115" y="109" text-anchor="middle">create IAM user +</text>
+          <text class="sub" x="115" y="123" text-anchor="middle">least-priv policy</text>
+          <rect class="box" x="250" y="60" width="150" height="86" rx="12"/>
+          <text class="lbl" x="325" y="90" text-anchor="middle">Bedrock API key</text>
+          <text class="sub" x="325" y="109" text-anchor="middle">(bearer token)</text>
+          <text class="sub" x="325" y="123" text-anchor="middle">saved 600-perm file</text>
+          <path class="edge" d="M190,103 L248,103" marker-end="url(#arrow)"/>
+
+          <!-- hand-off arrow -->
+          <path class="edge" d="M325,146 L325,250 L190,250" marker-end="url(#arrow)"/>
+          <text class="edgetxt" x="330" y="200">secure hand-off of token file</text>
+
+          <!-- Runtime zone -->
+          <rect class="zone" x="20" y="220" width="860" height="250" rx="14"/>
+          <text class="zonetxt" x="38" y="242">RUNTIME · USER MACHINE → AMAZON BEDROCK (India region)</text>
+
+          <!-- Codex client -->
+          <rect x="40" y="300" width="200" height="120" rx="12" fill="#ffffff" stroke="url(#g1)" stroke-width="2.5"/>
+          <text class="lbl" x="140" y="330" text-anchor="middle">Codex CLI / app</text>
+          <text class="sub" x="140" y="350" text-anchor="middle">~/.codex/config.toml</text>
+          <text class="sub" x="140" y="366" text-anchor="middle">provider =</text>
+          <text class="sub" x="140" y="380" text-anchor="middle">amazon-bedrock-runtime</text>
+          <text class="sub" x="140" y="400" text-anchor="middle" style="fill:#0f8a6b">bearer token in ~/.codex/.env</text>
+
+          <!-- Bedrock runtime -->
+          <rect class="box" x="330" y="300" width="230" height="120" rx="12"/>
+          <text class="lbl" x="445" y="330" text-anchor="middle">Amazon Bedrock runtime</text>
+          <text class="sub" x="445" y="350" text-anchor="middle">bedrock-runtime endpoint</text>
+          <text class="sub" x="445" y="366" text-anchor="middle">Responses API surface</text>
+          <text class="sub" x="445" y="386" text-anchor="middle">auth: Bedrock API key</text>
+          <text class="sub" x="445" y="402" text-anchor="middle">(bedrock:CallWithBearerToken)</text>
+
+          <!-- Inference profile -->
+          <rect class="box" x="640" y="300" width="220" height="120" rx="12"/>
+          <text class="lbl" x="750" y="330" text-anchor="middle">India inference profile</text>
+          <text class="sub" x="750" y="350" text-anchor="middle">in.openai.gpt-5.6-terra</text>
+          <text class="sub" x="750" y="368" text-anchor="middle">routes within</text>
+          <text class="sub" x="750" y="384" text-anchor="middle">ap-south-1 / ap-south-2</text>
+
+          <path class="edge" d="M240,360 L328,360" marker-end="url(#arrow)"/>
+          <text class="edgetxt" x="284" y="352" text-anchor="middle">HTTPS</text>
+          <path class="edge" d="M560,360 L638,360" marker-end="url(#arrow)"/>
+        </svg>
+        <div class="cap">Admin provisions a per-user IAM identity and bearer token (top); the user's Codex client then
+          calls the Bedrock runtime endpoint directly, which routes through the India inference profile.</div>
+      </div>
+    </section>
+
+    <!-- 4. APPROACH -->
+    <section id="approach">
+      <h2><span class="num">04</span> Design Approach</h2>
+      <p>The bundle separates <strong>admin provisioning</strong> from <strong>user setup</strong>, driven by one
+      settings file, with a built-in verification at the end.</p>
+
+      <h3>The scripts (run in order)</h3>
+      <table>
+        <tr><th>#</th><th>Script</th><th>Who / where</th><th>What it does</th></tr>
+        <tr><td>0</td><td><code>0_setup_admin_credentials.py</code></td><td>Admin, once</td><td>Store admin AWS credentials in a named CLI profile and verify identity. Creates no resources.</td></tr>
+        <tr><td>1</td><td><code>1_create_codex_user_and_token.py</code></td><td>Admin, per user</td><td>Create a low-privilege IAM user, attach the least-privilege Bedrock policy, and issue a bearer token (or IAM key). Saves the secret to a restricted-permission file.</td></tr>
+        <tr><td>2</td><td><code>2_install_codex.py</code></td><td>User machine</td><td>Install the Codex CLI (and desktop app), write <code>~/.codex/config.toml</code> and <code>~/.codex/.env</code>, verify the CLI runs.</td></tr>
+        <tr><td>3</td><td><code>3_apply_token.py</code></td><td>User machine</td><td>Write the bearer token into the Codex environment so it authenticates to Bedrock.</td></tr>
+        <tr><td>M</td><td><code>install_all.py</code></td><td>Both</td><td>Master installer — runs the steps in sequence (<code>--admin</code> / <code>--user</code> / all), reading <code>codex.properties</code>.</td></tr>
+      </table>
+
+      <h3>Separation of roles</h3>
+      <ul>
+        <li><strong>Admin (steps 0–1)</strong> — runs on the administrator's machine with admin AWS credentials;
+        produces a per-user token file to hand off securely.</li>
+        <li><strong>End user (steps 2–3)</strong> — runs on the developer's own machine; installs Codex and applies
+        the token. Model, region, and provider usually stay at the validated defaults.</li>
+      </ul>
+
+      <div class="card accent">
+        <h4>Guiding principle</h4>
+        <p class="muted">Keep the error-prone details — the exact provider name, inference-profile id, API surface,
+        and the least-privilege IAM policy — captured once in validated scripts and a single settings file, so each
+        new user is a repeatable, low-risk sequence rather than manual configuration.</p>
+      </div>
+    </section>
+
+    <!-- 5. AUTH & ACCESS -->
+    <section id="auth">
+      <h2><span class="num">05</span> Authentication &amp; Access Controls</h2>
+      <p>Each developer authenticates to Amazon Bedrock with their <strong>own per-user credential</strong>, backed by
+      a dedicated low-privilege IAM user. Two credential types are supported.</p>
+
+      <h3>Credential types</h3>
+      <ul>
+        <li><strong>Bearer token (recommended)</strong> — an Amazon Bedrock API key issued to the user's IAM identity.
+        Codex reads it from <code>~/.codex/.env</code> (<code>AWS_BEARER_TOKEN_BEDROCK</code>). The file is written
+        with restrictive (600) permissions.</li>
+        <li><strong>IAM access key</strong> — a SigV4 credential used via the AWS SDK credential chain, for teams that
+        prefer standard IAM keys over a bearer token.</li>
+      </ul>
+
+      <h3>Least-privilege IAM policy</h3>
+      <p>Script 1 attaches a scoped policy to each user that allows only Bedrock invocation of the India inference
+      profile and the underlying foundation model in <code>ap-south-1</code> / <code>ap-south-2</code>:</p>
+      <ul>
+        <li><code>bedrock:InvokeModel*</code> scoped to the India geographic inference-profile ARN and the
+        foundation-model ARNs, gated by a <code>bedrock:InferenceProfileArn</code> condition.</li>
+        <li>For the bearer path, <code>bedrock:CallWithBearerToken</code> — Amazon Bedrock API key auth requires this
+        action, and it does not support ARN scoping (so it is granted on <code>*</code>). The SigV4 / IAM-key path
+        does not need it.</li>
+      </ul>
+
+      <div class="card ok">
+        <h4>Why per-user identities matter</h4>
+        <p class="muted">Each developer has a distinct IAM user and credential rather than a shared secret, so access
+        can be granted, audited, and removed per person. Combined with the scoped policy, a user's credential is
+        limited to invoking the configured India model — not broad Bedrock or account access.</p>
+      </div>
+
+      <div class="card warn">
+        <h4>Secret handling &amp; the preferred credential model</h4>
+        <ul style="margin:0">
+          <li>Issued secrets are written to files with restrictive (600) permissions, and the file path is printed
+          for a secure hand-off.</li>
+          <li>Token and key files (<code>*_BEARER.txt</code>, <code>*_IAMKEY.txt</code>) and the local
+          <code>codex.properties</code> are excluded from version control; the admin should delete the local secret
+          file after hand-off.</li>
+          <li>The per-user bearer token here is a <strong>long-lived</strong> Bedrock credential — appropriate for
+          validation, but for ongoing use the <strong>preferred approach is short-lived credentials with a smaller
+          blast radius</strong>: run the <strong>Bedrock Meter</strong> gateway, where the only AWS credential is a
+          short-lived, auto-rotated ECS task role and developers hold only a revocable gateway key. See
+          <a href="https://github.com/tripathihsr/bedrock-meter" target="_blank" rel="noopener">github.com/tripathihsr/bedrock-meter</a>
+          and complete user onboarding through its admin console.</li>
+          <li>For administrators, prefer AWS IAM Identity Center (SSO) over long-lived admin access keys.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 6. INSTALLATION -->
+    <section id="install">
+      <h2><span class="num">06</span> Installation Steps</h2>
+      <p>Steps 0–1 are run once by an administrator (and step 1 per new user); steps 2–3 are run by each developer on
+      their own machine. On Windows, use <code>python</code> instead of <code>python3</code>.</p>
+
+      <div class="card warn">
+        <h4>Prerequisites</h4>
+        <ul style="margin:0">
+          <li><strong>Python 3</strong> and <strong>AWS CLI v2</strong> on each machine</li>
+          <li>An <strong>admin AWS identity</strong> able to create IAM users, attach inline policies, and issue
+          Amazon Bedrock API keys (service-specific credentials)</li>
+          <li>Amazon Bedrock <strong>model access enabled</strong> for the target India model in your account</li>
+          <li>A package installer for Codex — Homebrew on macOS, winget on Windows</li>
+        </ul>
+      </div>
+
+      <ol class="steps zero">
+        <li>
+          <h3>Edit <code>codex.properties</code></h3>
+          <p class="muted">One file drives every script. Copy the template and set the values you need (model, region,
+          provider, auth type, username). Anything left blank is prompted for or defaulted.</p>
+          <pre><code>cp codex.properties.template codex.properties
+# then edit: username, auth_type, admin_profile (admin) / token_file (user)</code></pre>
+        </li>
+
+        <li>
+          <h3>Admin — configure admin AWS credentials</h3>
+          <p class="muted">Stores your admin credentials in a named CLI profile and verifies identity with
+          <code>sts get-caller-identity</code>. Creates no AWS resources.</p>
+          <pre><code>python3 0_setup_admin_credentials.py</code></pre>
+        </li>
+
+        <li>
+          <h3>Admin — create the user and issue a token</h3>
+          <p class="muted">Creates the low-privilege IAM user <code>codex-bedrock-user-&lt;name&gt;</code>, attaches the
+          scoped Bedrock policy, and issues the credential. It prints exactly what it will create and asks for
+          confirmation first.</p>
+          <pre><code># bearer token (recommended)
+python3 1_create_codex_user_and_token.py --user alice --type bearer
+
+# or an IAM access key instead
+python3 1_create_codex_user_and_token.py --user alice --type iamkey</code></pre>
+          <p class="muted">The secret is saved to a 600-permission file (path printed). <span class="danger">Hand it
+          to the user securely and delete the local copy afterwards; never commit it.</span> IAM changes can take
+          ~30s to propagate.</p>
+        </li>
+
+        <li>
+          <h3>User — install Codex and write config</h3>
+          <p class="muted">Installs the Codex CLI (and desktop app) and writes <code>~/.codex/config.toml</code> and
+          <code>~/.codex/.env</code> resolved to the current user's home. It verifies the CLI actually runs — do not
+          continue until that check passes.</p>
+          <pre><code>python3 2_install_codex.py</code></pre>
+        </li>
+
+        <li>
+          <h3>User — apply the bearer token</h3>
+          <p class="muted">Writes the token into the Codex environment so it authenticates to Bedrock.</p>
+          <pre><code>python3 3_apply_token.py --token-file /path/to/codex-bedrock-user-alice_BEARER.txt</code></pre>
+          <p class="muted">On Windows, fully restart the Codex desktop app afterwards. On macOS, open a new terminal
+          so the environment loads.</p>
+        </li>
+
+        <li>
+          <h3>Verify</h3>
+          <p class="muted">Confirm the full path works. The <code>unset</code> ensures the bearer token is used rather
+          than a leftover SDK profile.</p>
+          <pre><code>unset AWS_PROFILE AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN
+codex exec --skip-git-repo-check "reply with exactly: BEDROCK OK"
+# Expected: BEDROCK OK  (ignore the harmless "Model metadata not found" warning)</code></pre>
+        </li>
+      </ol>
+
+      <div class="card accent">
+        <h4>One-shot install (optional)</h4>
+        <p class="muted">After editing <code>codex.properties</code>, the master installer can run the steps for you —
+        all of them, or just the admin or user subset — reading the settings file and stopping on the first failure
+        with a resume hint.</p>
+        <pre><code>python3 install_all.py            # interactive menu (pick steps)
+python3 install_all.py --admin    # admin steps only (0,1)
+python3 install_all.py --user     # user steps only (2,3)
+python3 install_all.py --dry-run  # print the sequence without executing</code></pre>
+      </div>
+
+      <div class="card warn">
+        <h4>Key configuration detail</h4>
+        <p class="muted">The provider name is the make-or-break setting: use
+        <code>model_provider = "amazon-bedrock-runtime"</code>. The older <code>amazon-bedrock</code> value targets a
+        different endpoint and returns a <code>404 model does not exist</code> for the India inference profile.</p>
+      </div>
+    </section>
+
+    <!-- 7. SUMMARY -->
+    <section id="summary">
+      <h2><span class="num">07</span> Summary</h2>
+      <p>This bundle makes "run Codex against Amazon Bedrock in India" a repeatable, per-user setup rather than manual
+      configuration. An admin provisions each developer's low-privilege identity and token; the developer installs
+      Codex and applies the token; a built-in check confirms the path works.</p>
+      <table>
+        <tr><th>Goal</th><th>How this bundle approaches it</th></tr>
+        <tr><td>Data residency</td><td>Codex points at the Bedrock runtime endpoint in India; the geographic inference profile routes within ap-south-1 / ap-south-2</td></tr>
+        <tr><td>Correct wiring</td><td>Validated <code>config.toml</code> and provider settings written by the scripts, avoiding the common 404 misconfiguration</td></tr>
+        <tr><td>Per-user access</td><td>A dedicated low-privilege IAM user and credential per developer, with a scoped Bedrock policy</td></tr>
+        <tr><td>Cross-platform onboarding</td><td>Same scripts on macOS and Windows, driven by one settings file</td></tr>
+        <tr><td>Safe secrets</td><td>Secrets written to restricted-permission files and excluded from version control</td></tr>
+      </table>
+      <p class="muted">Use this bundle to <strong>validate</strong> the in-country Bedrock path. For ongoing use —
+      short-lived credentials with a smaller blast radius, per-user budgets, usage metering, console onboarding, and
+      instant key revocation — set up the <strong>Bedrock Meter</strong> gateway in front of Bedrock and onboard
+      developers through its admin console:
+      <a href="https://github.com/tripathihsr/bedrock-meter" target="_blank" rel="noopener">github.com/tripathihsr/bedrock-meter</a>.</p>
+
+      <div class="card warn">
+        <h4>Found an issue? Please report it</h4>
+        <p class="muted">If you encounter a bug or unexpected behaviour, please open an issue on the project
+        repository:
+        <a href="https://github.com/tripathihsr/codex-on-bedrock/issues" target="_blank" rel="noopener">github.com/tripathihsr/codex-on-bedrock/issues</a>.
+        A helpful report includes what you expected, what actually happened, the step or command involved, and any
+        relevant error output. <strong>Please redact secrets</strong> — never paste bearer tokens, IAM keys, or AWS
+        credentials into an issue.</p>
+      </div>
+
+      <footer>
+        Codex on Amazon Bedrock (India) — provisioning bundle. Installation &amp; architecture reference.
+        Provided as-is for technical guidance; validate against your own security, privacy, and regulatory
+        requirements. OpenAI Codex, Amazon Bedrock, AWS, and related marks are the property of their respective
+        owners.
+      </footer>
+    </section>
+  </main>
+</div>
+
+<script>
+  const links = Array.from(document.querySelectorAll('nav a'));
+  const map = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = map.get(e.target.id);
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-15% 0px -75% 0px', threshold: 0 });
+  document.querySelectorAll('section[id]').forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
